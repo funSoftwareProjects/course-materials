@@ -4,6 +4,7 @@
 // Useage:
 // {TODO 1: FILL IN}
 // run: go test
+//
 
 package scanner
 
@@ -18,13 +19,16 @@ import (
 var openports []int // notice the capitalization here. access limited!
 var closedports []int
 
-func worker(ports, results chan int) {
+func worker(addressToScan string, ports, results chan int) {
 	for p := range ports {
-		address := fmt.Sprintf("scanme.nmap.org:%d", p)
-		conn, err := net.DialTimeout("tcp", address, 3000*time.Millisecond) // TODO 2 : REPLACE THIS WITH DialTimeout (before testing!)
+		address := fmt.Sprintf("%s:%d", addressToScan, p)
+		conn, err := net.DialTimeout("tcp", address, 5*time.Second) // TODO 2 : REPLACE THIS WITH DialTimeout (before testing!)
 		if err != nil {
 			results <- 0
+			closedports = append(closedports, p)
 			continue
+		} else {
+			openports = append(openports, p)
 		}
 		conn.Close()
 		results <- p
@@ -36,13 +40,13 @@ func worker(ports, results chan int) {
 // med: easy + return  complex data structure(s?) (maps or slices) containing the ports.
 // hard: restructuring code - consider modification to class/object
 // No matter what you do, modify scanner_test.go to align; note the single test currently fails
-func PortScanner() (int, int) {
+func PortScanner(addressToScan string) (int, int) {
 
 	ports := make(chan int, 100) // TODO 4: TUNE THIS FOR CODEANYWHERE / LOCAL MACHINE
 	results := make(chan int)
 
 	for i := 0; i < cap(ports); i++ {
-		go worker(ports, results)
+		go worker(addressToScan, ports, results)
 	}
 
 	go func() {
@@ -54,9 +58,9 @@ func PortScanner() (int, int) {
 	for i := 0; i < 1024; i++ {
 		port := <-results
 		if port != 0 {
-			openports = append(openports, port)
+			//openports = append(openports, port)
 		} else {
-			closedports = append(closedports, port)
+			//closedports = append(closedports, port)
 		}
 	}
 
@@ -65,15 +69,43 @@ func PortScanner() (int, int) {
 	sort.Ints(openports)
 	sort.Ints(closedports)
 
-	//TODO 5 : Enhance the output for easier consumption, include closed ports
+	printPorts()
 
-	for _, port := range openports {
-		fmt.Printf("%d open\n", port)
-	}
-	for _, port := range closedports {
-		fmt.Printf("%d closed\n", port)
-	}
-
-	return len(openports), len(closedports) // TODO 6 : Return total number of ports scanned (number open, number closed);
+	lengthOpen := len(openports)
+	lengthClosed := len(closedports)
+	openports = []int{}
+	closedports = []int{}
+	return lengthOpen, lengthClosed // TODO 6 : Return total number of ports scanned (number open, number closed);
 	//you'll have to modify the function parameter list in the defintion and the values in the scanner_test
+}
+
+func printPorts() {
+	//TODO 5 : Enhance the output for easier consumption, include closed ports
+	fmt.Printf("Open ports: ")
+	if len(openports) == 0 {
+		fmt.Printf("None\n")
+	} else {
+		condense(openports)
+	}
+
+	fmt.Printf("\nClosed ports: ")
+	if len(closedports) == 0 {
+		fmt.Printf("None\n")
+	} else {
+		condense(closedports)
+	}
+	fmt.Printf("\n")
+}
+
+func condense(list []int) {
+	fmt.Printf("%v", list[0])
+
+	for i := 1; i < len(list); i++ {
+		if list[i] == list[i-1]+1 {
+			fmt.Printf("-")
+		} else {
+			fmt.Printf("%v, %v", list[i-1], list[i])
+		}
+	}
+	fmt.Printf("\n")
 }
