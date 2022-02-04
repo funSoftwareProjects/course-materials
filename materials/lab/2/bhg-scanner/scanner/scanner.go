@@ -43,7 +43,7 @@ func PortScanner(addressToScan string, start, end, timeoutSeconds int, showAll b
 	//This segment checks the validity of the specified port range, and if there
 	//is an invalid range, it sets defaults
 	if start < 1 || end > 1024 {
-		fmt.Printf("Input error: reverting port range to default")
+		fmt.Printf("Input error: reverting port range to default\n")
 		start = 1
 		end = 100
 	}
@@ -84,6 +84,12 @@ func PortScanner(addressToScan string, start, end, timeoutSeconds int, showAll b
 
 	//This segment prints the open ports as well as
 	// the closed ports, only if the showAll parameter was true
+	fmt.Printf("Scanned %s over ports %d to %d with a timeout time of %d second(s). Closed ports were selected to be ", addressToScan, start, end, timeoutSeconds)
+	if showAll {
+		fmt.Printf("shown.\n")
+	} else {
+		fmt.Printf("hidden.\n")
+	}
 	for _, port := range openports {
 		fmt.Printf("%d,open\n", port)
 	}
