@@ -1,1 +1,14 @@
-go test
+Test this program using: "go test"
+
+This program allows you to quickly scan ports. I added documentation,
+switched to DialTimeout instead of Dial to speed things up, added the 
+tracking of closed ports, both in displaying them and returning them and I
+checked the ports buffer to balance memory usage and speed.
+
+I created options for the user to specify what address they want to scan,
+which port range they are interested in (with error checking), a timeout 
+adjustment option, and the ability to hide the closed ports for a more 
+readable output.
+
+I also updated the testing functionality to accomodate these new features and
+my additions.
