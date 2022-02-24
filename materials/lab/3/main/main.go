@@ -36,8 +36,9 @@ func main() {
 		if err != nil {
 			log.Panicln("Error with hostname ip!\n")
 		}
-		fmt.Printf("\nDNS of hostname %s is %s\n", *hostnamePtr, hostname_ip)
-		json.MarshalIndent(hostname_ip, "", "\t")
+		output, _ := json.MarshalIndent(string(hostname_ip), "", "		")
+		fmt.Println(string(output))
+
 	}
 
 	if *creditsPtr == true {
