@@ -7,6 +7,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -19,6 +20,13 @@ func main() {
 			log.Fatalln("Usage: main <searchterm>")
 		}
 	*/
+
+	//Parse the flags
+	hostnamePtr := flag.String("dnsresolve", "*", "a string")
+	creditsPtr := flag.Bool("showcredits", false, "a bool")
+	hostSearchPtr := flag.String("hosttosearch", "*", "a string")
+	flag.Parse()
+
 	apiKey := os.Getenv("SHODAN_API_KEY")
 
 	s := shodan.New(apiKey)
@@ -27,40 +35,47 @@ func main() {
 		log.Panicln(err)
 	}
 
-	hostname_ip, err := s.DNSInfo(os.Args[2])
+	if *hostnamePtr != "*" {
+		fmt.Printf("\nDEBUG\n")
+		hostname_ip, err := s.DNSInfo(*hostnamePtr)
 
-	if err != nil {
-		log.Panicln("Error with hostname ip!\n")
+		if err != nil {
+			log.Panicln("Error with hostname ip!\n")
+		}
+
+		fmt.Printf("\n\n######################\n\n")
+		fmt.Printf("\nDNS of hostname %s is %s\n", *hostnamePtr, hostname_ip)
+		json.MarshalIndent(hostname_ip, "", "\t")
 	}
 
-	fmt.Printf("\n\n######################\n\n")
-	fmt.Printf("\nDNS of hostname %s is %s\n", os.Args[2], hostname_ip)
-	json.MarshalIndent(hostname_ip, "", "\t")
-
-	fmt.Printf(
-		"Query Credits: %d\nScan Credits:  %d\n\n",
-		info.QueryCredits,
-		info.ScanCredits)
-
-	hostSearch, err := s.HostSearch(os.Args[1])
-	if err != nil {
-		log.Panicln(err)
+	if *creditsPtr == true {
+		fmt.Printf(
+			"Query Credits: %d\nScan Credits:  %d\n\n",
+			info.QueryCredits,
+			info.ScanCredits)
 	}
 
-	fmt.Printf("Host Data Dump\n")
-	for _, host := range hostSearch.Matches {
-		fmt.Println("==== start ", host.IPString, "====")
-		h, _ := json.Marshal(host)
-		fmt.Println(string(h))
-		fmt.Println("==== end ", host.IPString, "====")
-		//fmt.Println("Press the Enter Key to continue.")
-		//fmt.Scanln()
-	}
+	if *hostSearchPtr != "*" {
+		hostSearch, err := s.HostSearch(*hostSearchPtr)
+		if err != nil {
+			log.Panicln(err)
+		}
 
-	fmt.Printf("IP, Port\n")
+		fmt.Printf("Host Data Dump\n")
+		for _, host := range hostSearch.Matches {
+			fmt.Println("==== start ", host.IPString, "====")
+			h, _ := json.Marshal(host)
+			fmt.Println(string(h))
+			fmt.Println("==== end ", host.IPString, "====")
+			//fmt.Println("Press the Enter Key to continue.")
+			//fmt.Scanln()
+		}
 
-	for _, host := range hostSearch.Matches {
-		fmt.Printf("%s, %d\n", host.IPString, host.Port)
+		fmt.Printf("IP, Port\n")
+
+		for _, host := range hostSearch.Matches {
+			fmt.Printf("%s, %d\n", host.IPString, host.Port)
+		}
 	}
 
 }
