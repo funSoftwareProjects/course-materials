@@ -15,11 +15,6 @@ import (
 )
 
 func main() {
-	/*
-		if len(os.Args) != 2 {
-			log.Fatalln("Usage: main <searchterm>")
-		}
-	*/
 
 	//Parse the flags
 	hostnamePtr := flag.String("dnsresolve", "*", "a string")
@@ -36,14 +31,11 @@ func main() {
 	}
 
 	if *hostnamePtr != "*" {
-		fmt.Printf("\nDEBUG\n")
 		hostname_ip, err := s.DNSInfo(*hostnamePtr)
 
 		if err != nil {
 			log.Panicln("Error with hostname ip!\n")
 		}
-
-		fmt.Printf("\n\n######################\n\n")
 		fmt.Printf("\nDNS of hostname %s is %s\n", *hostnamePtr, hostname_ip)
 		json.MarshalIndent(hostname_ip, "", "\t")
 	}
