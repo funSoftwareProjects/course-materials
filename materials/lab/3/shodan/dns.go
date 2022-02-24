@@ -1,8 +1,8 @@
 package shodan
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -14,19 +14,19 @@ type HostIP struct {
 	Matches []DNSInfo `json:"matches"`
 }
 
-func (s *Client) DNSInfo(q string) (*HostIP, error) {
+func (s *Client) DNSInfo(q string) (string, error) {
 	res, err := http.Get(
-		fmt.Sprintf("%s/shodan/dns/resolve?hostnames=%s&key=%s", BaseURL, q, s.apiKey),
+		fmt.Sprintf("https://api.shodan.io/dns/resolve?hostnames=%s&key=%s", q, s.apiKey),
 	)
+	fmt.Printf("\n\n")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer res.Body.Close()
 
-	var ret HostIP
-	if err := json.NewDecoder(res.Body).Decode(&ret); err != nil {
-		return nil, err
-	}
+	//used this idea: https://www.codegrepper.com/code-examples/go/golang+print+http+request+body
+	bodyBytes, err := ioutil.ReadAll(res.Body)
+	bodyString := string(bodyBytes)
 
-	return &ret, nil
+	return bodyString, nil
 }

@@ -6,23 +6,37 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
-	"encoding/json"
 	"shodan/shodan"
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		log.Fatalln("Usage: main <searchterm>")
-	}
+	/*
+		if len(os.Args) != 2 {
+			log.Fatalln("Usage: main <searchterm>")
+		}
+	*/
 	apiKey := os.Getenv("SHODAN_API_KEY")
+
 	s := shodan.New(apiKey)
 	info, err := s.APIInfo()
 	if err != nil {
 		log.Panicln(err)
 	}
+
+	hostname_ip, err := s.DNSInfo(os.Args[2])
+
+	if err != nil {
+		log.Panicln("Error with hostname ip!\n")
+	}
+
+	fmt.Printf("\n\n######################\n\n")
+	fmt.Printf("\nDNS of hostname %s is %s\n", os.Args[2], hostname_ip)
+	json.MarshalIndent(hostname_ip, "", "\t")
+
 	fmt.Printf(
 		"Query Credits: %d\nScan Credits:  %d\n\n",
 		info.QueryCredits,
@@ -35,20 +49,18 @@ func main() {
 
 	fmt.Printf("Host Data Dump\n")
 	for _, host := range hostSearch.Matches {
-		fmt.Println("==== start ",host.IPString,"====")
-		h,_ := json.Marshal(host)
+		fmt.Println("==== start ", host.IPString, "====")
+		h, _ := json.Marshal(host)
 		fmt.Println(string(h))
-		fmt.Println("==== end ",host.IPString,"====")
+		fmt.Println("==== end ", host.IPString, "====")
 		//fmt.Println("Press the Enter Key to continue.")
 		//fmt.Scanln()
 	}
-
 
 	fmt.Printf("IP, Port\n")
 
 	for _, host := range hostSearch.Matches {
 		fmt.Printf("%s, %d\n", host.IPString, host.Port)
 	}
-
 
 }
