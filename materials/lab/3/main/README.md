@@ -11,8 +11,8 @@ instead of using os.Args. The available flags are as follows:
 An example usage with fully featured output:
 SHODAN_API_KEY=YOUR_API_KEY ./main -showcredits -hosttosearch=laramie -dnsresolve=uwyo.edu
 
-Minimal options to just resolve a DNS address:
+Run with minimal options to just resolve a DNS address:
 SHODAN_API_KEY=JZ0k75a7LqCOOmVBcbzozYwtj3IDLFLj ./main -dnsresolve=google.com
 
-To resolve multiple addresses:
+To resolve multiple addresses (separate by commas):
 SHODAN_API_KEY=JZ0k75a7LqCOOmVBcbzozYwtj3IDLFLj ./main -dnsresolve=google.com,uwyo.edu,facebook.com
