@@ -19,6 +19,7 @@ type Assignment struct {
 	Title       string `json:"title`
 	Description string `json:"desc"`
 	Points      int    `json:"points"`
+	Key         int    `json:"key"`
 }
 
 var Assignments []Assignment
@@ -31,6 +32,7 @@ func InitAssignments() {
 	assignmnet.Title = "Lab 4 "
 	assignmnet.Description = "Some lab this guy made yesteday?"
 	assignmnet.Points = 20
+	assignmnet.Key = 0
 	Assignments = append(Assignments, assignmnet)
 }
 
@@ -72,10 +74,31 @@ func GetAssignment(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	//TODO : Provide a response if there is no such assignment
-	//w.Write(jsonResponse)
+	response := make(map[string]string)
+	response["status"] = "No matching ID found"
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		return
+	}
+	w.Write(jsonResponse)
 }
 
 func DeleteAssignment(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	temp, _ := strconv.Atoi(r.FormValue("key"))
+	if temp != 453 {
+		log.Printf("FAIL: incorrect or missing key value!")
+		w.WriteHeader(http.StatusBadRequest)
+		response := make(map[string]string)
+		response["status"] = "Wrong or missing key value"
+		jsonResponse, err := json.Marshal(response)
+		if err != nil {
+			return
+		}
+		w.Write(jsonResponse)
+		return
+	}
+
 	log.Printf("Entering %s DELETE end point", r.URL.Path)
 	w.Header().Set("Content-Type", "application/txt")
 	w.WriteHeader(http.StatusOK)
@@ -105,11 +128,24 @@ func UpdateAssignment(w http.ResponseWriter, r *http.Request) {
 
 	var response Response
 	response.Assignments = Assignments
-
+	r.ParseForm()
+	temp, _ := strconv.Atoi(r.FormValue("key"))
+	if temp != 453 {
+		log.Printf("FAIL: incorrect or missing key!")
+		w.WriteHeader(http.StatusBadRequest)
+		response := make(map[string]string)
+		response["status"] = "Wrong or missing key value"
+		jsonResponse, err := json.Marshal(response)
+		if err != nil {
+			return
+		}
+		w.Write(jsonResponse)
+		return
+	}
 	DeleteAssignment(w, r)
 
 	var updatedAssignment Assignment
-	r.ParseForm()
+	//r.ParseForm()
 	if r.FormValue("id") != "" {
 		updatedAssignment.Id = r.FormValue("id")
 		updatedAssignment.Title = r.FormValue("title")
@@ -124,6 +160,17 @@ func UpdateAssignment(w http.ResponseWriter, r *http.Request) {
 func CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Entering %s Create end point", r.URL.Path)
 	w.Header().Set("Content-Type", "application/json")
+
+	//adding checker
+
+	for _, assignment := range Assignments {
+		if assignment.Id == r.FormValue("id") {
+			log.Printf("ID already exists")
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
 	var assignmnet Assignment
 	r.ParseForm()
 	// Possible TODO: Better Error Checking!
