@@ -1,0 +1,16 @@
+aram@aram-Z230-Workstation:~/course-materials/materials/lab/4/main$ ./main > output.txt
+2022/03/09 21:54:56 starting API server
+2022/03/09 21:54:56 creating routes
+2022/03/09 21:55:12 Entering /api-status end point
+2022/03/09 21:55:38 Entering Get Assignments /assignments end point
+2022/03/09 21:55:55 Entering Get Assignment /assignment/Mike1A end point
+2022/03/09 21:56:31 Entering /assignment/Mike1A DELETE end point
+2022/03/09 21:57:31 Entering /assignment/newMike1A DELETE end point
+2022/03/09 21:58:25 Entering /assignment Create end point
+2022/03/09 21:58:25 http: superfluous response.WriteHeader call from wyoassign/wyoassign.CreateAssignment (wyoassign.go:139)
+2022/03/09 21:59:21 Entering update /assignments/newLab end point
+2022/03/09 21:59:21 Entering /assignments/newLab DELETE end point
+2022/03/09 21:59:21 http: superfluous response.WriteHeader call from wyoassign/wyoassign.UpdateAssignment (wyoassign.go:119)
+2022/03/09 21:59:21 http: superfluous response.WriteHeader call from wyoassign/wyoassign.UpdateAssignment (wyoassign.go:121)
+2022/03/09 21:59:28 Entering Get Assignment /assignment/Mike1A end point
+2022/03/09 21:59:35 Entering Get Assignments /assignments end point

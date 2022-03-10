@@ -41,7 +41,7 @@ func APISTATUS(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAssignments(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Entering %s end point", r.URL.Path)
+	log.Printf("Entering Get Assignments %s end point", r.URL.Path)
 	var response Response
 
 	response.Assignments = Assignments
@@ -60,7 +60,7 @@ func GetAssignments(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAssignment(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Entering %s end point", r.URL.Path)
+	log.Printf("Entering Get Assignment %s end point", r.URL.Path)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	params := mux.Vars(r)
@@ -100,7 +100,7 @@ func DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateAssignment(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Entering %s end point", r.URL.Path)
+	log.Printf("Entering update %s end point", r.URL.Path)
 	w.Header().Set("Content-Type", "application/json")
 
 	var response Response
@@ -122,6 +122,7 @@ func UpdateAssignment(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateAssignment(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Entering %s Create end point", r.URL.Path)
 	w.Header().Set("Content-Type", "application/json")
 	var assignmnet Assignment
 	r.ParseForm()
