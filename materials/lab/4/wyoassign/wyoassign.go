@@ -116,7 +116,7 @@ func UpdateAssignment(w http.ResponseWriter, r *http.Request) {
 		updatedAssignment.Description = r.FormValue("desc")
 		updatedAssignment.Points, _ = strconv.Atoi(r.FormValue("points"))
 		Assignments = append(Assignments, updatedAssignment)
-		w.WriteHeader(http.StatusCreated) //change to status updated
+		w.WriteHeader(http.StatusCreated)
 	}
 	w.WriteHeader(http.StatusNotFound)
 }

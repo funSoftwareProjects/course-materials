@@ -14,3 +14,12 @@ aram@aram-Z230-Workstation:~/course-materials/materials/lab/4/main$ ./main > out
 2022/03/09 21:59:21 http: superfluous response.WriteHeader call from wyoassign/wyoassign.UpdateAssignment (wyoassign.go:121)
 2022/03/09 21:59:28 Entering Get Assignment /assignment/Mike1A end point
 2022/03/09 21:59:35 Entering Get Assignments /assignments end point
+
+
+List of api calls made using Postman:
+http://127.0.0.1:8080/api-status (using GET)
+http://127.0.0.1:8080/assignments (using GET)
+http://127.0.0.1:8080/assignment/Mike1A (using GET)
+http://127.0.0.1:8080/assignment/Mike1A (using DELETE)
+http://127.0.0.1:8080/assignment?id=new test id&Title=new test Title&desc=my description&points=200 (using POST)
+http://127.0.0.1:8080/assignments/new test id?id=new test id&Title=new test Title&desc=my description&points=200 (using PUT)
