@@ -72,9 +72,14 @@ func walkFn2(w http.ResponseWriter, query string) filepath.WalkFunc {
 		}
 		w.Header().Set("Content-Type", "application/json")
 
-		r := "[a-z]*"
-		match, err := regexp.MatchString(r, path)
-		if match {
+		r := regexp.MustCompile(`(?i)` + query)
+
+		if r == nil && LOG_LEVEL > 0 {
+			log.Printf("Requested regex was equal to nil")
+			return nil
+		}
+
+		if r.MatchString(path) {
 			var tfile FileInfo
 			dir, filename := filepath.Split(path)
 			tfile.Filename = string(filename)
@@ -141,7 +146,12 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	//TODO_8 - Write out something better than this that describes what this api does
 
-	fmt.Fprintf(w, "<html><body><H1>Welcome to my awesome File page</H1></body>")
+	fmt.Fprintf(w, "<html><body><H1>Thanks for visiting this very helpful page</H1><B1>Availble endpoints:<br>")
+	fmt.Fprintf(w, "/clear: removes current regex patterns<br>/addsearch/{regex}: adds regex pattern<br>")
+	fmt.Fprintf(w, "/reset: restores original regex patters<br>")
+	fmt.Fprintf(w, "/indexer: indexes and searches through filesystem based on current regex patterns<br>")
+	fmt.Fprintf(w, "/search: searches through indexed filesystem locations<br>")
+	fmt.Fprintf(w, "/api-status: displays current regex patterns being used</B1></body>")
 }
 
 func FindFile(w http.ResponseWriter, r *http.Request) {
@@ -150,7 +160,7 @@ func FindFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	q, ok := r.URL.Query()["q"]
-
+	found := false
 	w.WriteHeader(http.StatusOK)
 	if ok && len(q[0]) > 0 {
 		if LOG_LEVEL > 0 {
@@ -163,10 +173,16 @@ func FindFile(w http.ResponseWriter, r *http.Request) {
 		for _, File := range Files {
 			if File.Filename == q[0] {
 				json.NewEncoder(w).Encode(File.Location)
-				//consider FOUND = TRUE
+				found = true
 			}
 		}
 		//TODO_9: Handle when no matches exist; print a useful json response to the user; hint you might need a "FOUND variable" to check here ...
+		if !found {
+			if LOG_LEVEL > 0 {
+				log.Printf("Did not find anything during query")
+			}
+		}
+		w.Write([]byte(` "regexs" : nothing was found during query`))
 
 	} else {
 		// didn't pass in a search term, show all that you've found
@@ -183,6 +199,7 @@ func IndexFiles(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	location, locOK := r.URL.Query()["location"]
+	regEx, regexOK := r.URL.Query()["regex"]
 
 	//TODO_10: Currently there is a huge risk with this code ... namely, we can search from the root /
 	//TODO_10: Assume the location passed starts at /home/ (or in Windows pick some "safe?" location)
@@ -208,9 +225,11 @@ func IndexFiles(w http.ResponseWriter, r *http.Request) {
 	// Define the logic required here to call the new function walkFn2(w,regex[0])
 	// Hint, you need to grab the regex parameter (see how it's done for location above...)
 
-	// if regexOK
-	//   call filepath.Walk(location[0], walkFn2(w, `(i?)`+regex[0]))
-	// else run code to locate files matching stored regular expression
+	if regexOK {
+		filepath.Walk(`/home`+location[0], walkFn2(w, regEx[0]))
+	} else {
+		filepath.Walk(`/home`+location[0], walkFn(w))
+	}
 
 	baseDir := `/home`
 	if err := filepath.Walk(baseDir+location[0], walkFn(w)); err != nil {
