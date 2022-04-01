@@ -182,7 +182,7 @@ func FindFile(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Did not find anything during query")
 			}
 		}
-		w.Write([]byte(` "regexs" : nothing was found during query`))
+		w.Write([]byte(` "Nothing was found during query"`))
 
 	} else {
 		// didn't pass in a search term, show all that you've found
@@ -225,13 +225,13 @@ func IndexFiles(w http.ResponseWriter, r *http.Request) {
 	// Define the logic required here to call the new function walkFn2(w,regex[0])
 	// Hint, you need to grab the regex parameter (see how it's done for location above...)
 
+	baseDir := `/home/aram/course-materials`
 	if regexOK {
-		filepath.Walk(`/home`+location[0], walkFn2(w, regEx[0]))
+		filepath.Walk(baseDir+location[0], walkFn2(w, regEx[0]))
 	} else {
-		filepath.Walk(`/home`+location[0], walkFn(w))
+		filepath.Walk(baseDir+location[0], walkFn(w))
 	}
 
-	baseDir := `/home`
 	if err := filepath.Walk(baseDir+location[0], walkFn(w)); err != nil {
 		if LOG_LEVEL > 0 {
 			log.Panicln(err)
