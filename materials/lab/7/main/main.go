@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+//Run with: go build && ./main honeynet.txt
+
 func main() {
 
 	//To test this with other password files youre going to have to hash
