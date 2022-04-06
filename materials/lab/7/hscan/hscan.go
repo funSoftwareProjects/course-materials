@@ -8,12 +8,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 )
 
 //==========================================================================\\
 
-var shalookup map[string]string
-var md5lookup map[string]string
+var shalookup = make(map[string]string)
+var md5lookup = make(map[string]string)
+var wg sync.WaitGroup
 
 func GuessSingle(sourceHash string, filename string) {
 
@@ -30,16 +32,18 @@ func GuessSingle(sourceHash string, filename string) {
 
 		// TODO - From the length of the hash you should know which one of these to check ...
 		// add a check and logicial structure
-
-		hash := fmt.Sprintf("%x", md5.Sum([]byte(password)))
-		if hash == sourceHash {
-			fmt.Printf("[+] Password found (MD5): %s\n", password)
+		if len(password) == 32 {
+			hash := fmt.Sprintf("%x", md5.Sum([]byte(password)))
+			if hash == sourceHash {
+				fmt.Printf("[+] Password found (MD5): %s\n", password)
+			}
+		} else {
+			hash := fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
+			if hash == sourceHash {
+				fmt.Printf("[+] Password found (SHA-256): %s\n", password)
+			}
 		}
 
-		hash = fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
-		if hash == sourceHash {
-			fmt.Printf("[+] Password found (SHA-256): %s\n", password)
-		}
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -47,7 +51,44 @@ func GuessSingle(sourceHash string, filename string) {
 	}
 }
 
+func solveMD5(password string) {
+	defer wg.Done()
+	temp := fmt.Sprintf("%x", md5.Sum([]byte(password)))
+	md5lookup[temp] = password
+}
+
+func solve256(password string) {
+	defer wg.Done()
+	temp := fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
+	shalookup[temp] = password
+}
+
 func GenHashMaps(filename string) {
+
+	f, err := os.Open(filename)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	var password string
+
+	for scanner.Scan() {
+		password = scanner.Text()
+
+		if len(password) == 32 {
+			wg.Add(1)
+			go solveMD5(password)
+
+		} else {
+			wg.Add(1)
+			go solve256(password)
+		}
+
+	}
+
+	wg.Wait()
 
 	//TODO
 	//itterate through a file (look in the guessSingle function above)
@@ -69,7 +110,6 @@ func GetSHA(hash string) (string, error) {
 	} else {
 
 		return "", errors.New("password does not exist")
-
 	}
 }
 
