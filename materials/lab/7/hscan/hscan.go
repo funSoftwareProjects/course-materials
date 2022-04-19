@@ -35,8 +35,10 @@ func GuessSingle(sourceHash string, filename string) {
 		// add a check and logicial structure
 		if len(sourceHash) == 32 {
 			hash := fmt.Sprintf("%x", md5.Sum([]byte(password)))
+			//log.Printf("hash was %s source hash was %s", hash, sourceHash)
 			if hash == sourceHash {
 				fmt.Printf("[+] Password found (MD5): %s\n", password)
+
 			}
 		} else {
 			hash := fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
@@ -53,11 +55,11 @@ func GuessSingle(sourceHash string, filename string) {
 }
 
 func solveMD5(password string, wga *sync.WaitGroup) {
-	log.Printf("Launched an MD5 routine")
+	//log.Printf("Launched an MD5 routine")
 
 	temp := fmt.Sprintf("%x", md5.Sum([]byte(password)))
 	md5M.Store(temp, password)
-	log.Printf("%s MD5 routine --CLOSED", temp)
+	//log.Printf("%s MD5 routine --CLOSED", temp)
 	wga.Done()
 }
 
