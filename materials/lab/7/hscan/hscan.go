@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/md5"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -17,7 +18,7 @@ var md5lookup = make(map[string]string)
 var shaM sync.Map
 var md5M sync.Map
 
-func GuessSingle(sourceHash string, filename string) { //this length chech isn't correct
+func GuessSingle(sourceHash string, filename string) {
 
 	f, err := os.Open(filename)
 	if err != nil {
@@ -32,7 +33,7 @@ func GuessSingle(sourceHash string, filename string) { //this length chech isn't
 
 		// TODO - From the length of the hash you should know which one of these to check ...
 		// add a check and logicial structure
-		if len(password) == 32 {
+		if len(sourceHash) == 32 {
 			hash := fmt.Sprintf("%x", md5.Sum([]byte(password)))
 			if hash == sourceHash {
 				fmt.Printf("[+] Password found (MD5): %s\n", password)
@@ -102,9 +103,14 @@ func GenHashMaps(filename string) {
 }
 
 func GetSHA(hash string) (string, error) {
-	//password, ok := shaM.Load("hash") //shalookup[hash]
-
-	return fmt.Sprint(shaM.Load(hash)), nil
+	temp, ok := shaM.Load(hash)
+	temp1 := fmt.Sprint(temp)
+	if !ok {
+		log.Printf("Passwod (sha256) not found!")
+		return "", errors.New("Password (sha256) not found!")
+	}
+	log.Printf("The password is %s", temp1)
+	return temp1, errors.New("sha256 password found")
 
 	//return "", errors.New("password does not exist")
 
@@ -112,6 +118,13 @@ func GetSHA(hash string) (string, error) {
 
 //TODO
 func GetMD5(hash string) (string, error) {
-	return fmt.Sprint(md5M.Load(hash)), nil
+	temp, ok := md5M.Load(hash)
+	temp1 := fmt.Sprint(temp)
+	if !ok {
+		log.Printf("Password (MD5) not found!")
+		return "", errors.New("Password (MD5) not found!")
+	}
+	log.Printf("The password is %s", temp1)
+	return temp1, errors.New("MD5 password found")
 	//return "", errors.New("not implemented")
 }
