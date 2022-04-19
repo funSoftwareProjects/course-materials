@@ -1,0 +1,17 @@
+226929 passwords in honeynet.txt file
+
+Timing with GuessSingle
+[+] Password found (MD5): Nickelback4life
+[+] Password found (SHA-256): Nickelback4life
+
+real    0m0.301s
+user    0m0.312s
+sys     0m0.008s
+
+Timing with GenHashMaps
+2022/04/19 13:55:35 The password is Nickelback4life
+2022/04/19 13:55:35 The password is Nickelback4life
+
+real    0m0.784s
+user    0m4.902s
+sys     0m0.202s
